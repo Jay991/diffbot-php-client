@@ -3,8 +3,8 @@
 require_once 'diffbot.class.php';
 
   
-$d = new diffbot("6503df913aed4fc8d713150018d91c2c");
+$d = new diffbot("DEVELOPER_TOKEN");
 
-$c= $d->analyze("http://diffbot.com/products/automatic/image/" );
+$c= $d->analyze("http://diffbot.com/products/" );
 
 var_dump($c);

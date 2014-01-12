@@ -20,7 +20,7 @@ personal developer token. The second, optional parameter is the API version.
 
 ```php
 require_once 'diffbot.class.php';
-$diffbot = new diffbot("DEVELOPER_TOKEN");
+$diffbot = new diffbot("DEVELOPER_TOKEN", 2);
 ```
 
 Then, the diffbot object can be used to call the Diffbot API several times.
@@ -81,6 +81,7 @@ Code:
 ```php
 require_once 'diffbot.class.php';
 $d = new diffbot("DEVELOPER_TOKEN");
+$d->timezone = "CET";	// set the logging timezone to Central European Time
 $c = $d->analyze("http://diffbot.com/products/");
 var_dump($c);
 ```
@@ -101,7 +102,7 @@ Code:
 ```php
 require_once 'diffbot.class.php';
 $d = new diffbot("DEVELOPER_TOKEN");
-$fields = array("icon","text","title");
+$fields = array("icon","text","title");	// fields to be returned
 $c = $d->article("http://diffbot.com/products/", $fields);
 var_dump($c);
 ```
