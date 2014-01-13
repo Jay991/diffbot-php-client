@@ -164,7 +164,10 @@ The parameters are:
 ```php
 require_once 'diffbot.class.php';
 $d = new diffbot("DEVELOPER_TOKEN");
-$ret = $d->crawlbot_start("testJob","http://diffbot.com/", false, array("maxToProcess"=>5) );
+$ret = $d->crawlbot_start("testJob","http://diffbot.com/"
+  ,false
+  ,array("maxToProcess"=>5)
+);
 print_r($ret->response);
 ```
 
@@ -186,12 +189,20 @@ $ret = $d->crawlbot_start("testJob","http://diffbot.com/"
 print_r($ret->response);
 ```
 
-#### To pause a running crawl job:
+#### Pause a running crawl job:
 
 ```php
 require_once 'diffbot.class.php';
 $d = new diffbot("DEVELOPER_TOKEN");
 $ret = $d->crawlbot_pause("testJob");
+```
+
+#### Delete a crawl job with its results:
+
+```php
+require_once 'diffbot.class.php';
+$d = new diffbot("DEVELOPER_TOKEN");
+$ret = $d->crawlbot_delete("testJob");
 ```
 
 Returns:
