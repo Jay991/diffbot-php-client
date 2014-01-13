@@ -203,6 +203,7 @@ $ret = $d->crawlbot_pause("testJob");
 require_once 'diffbot.class.php';
 $d = new diffbot("DEVELOPER_TOKEN");
 $ret = $d->crawlbot_delete("testJob");
+print_r($ret->response);
 ```
 
 Returns:
