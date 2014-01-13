@@ -37,12 +37,20 @@ Then, the diffbot object can be used to call the Diffbot API several times.
         
         /* methods */
         public __construct(string $Token [, int $Version=2] )
-
+		
+		/* automatic APIs */
         public object analyze(string $Url [, array $Fields] )
         public object article(string $Url [, array $Fields] )
         public object frontpage(string $Url [, array $Fields] )
         public object product(string $Url [, array $Fields] )
         public object image(string $Url [, array $Fields] )
+        
+        /* crawlbot API */
+		public object crawlbot_start(string $name, mixed $seeds, mixed $apiQuery=false [, array $Options ] )
+		public object crawlbot_pause(string $name)		// pause a runnning job
+		public object crawlbot_continue(string $name)	// continue a paused job
+		public object crawlbot_restart(string $name)	// restart a job, cleaning previous results
+		public object crawlbot_delete(string $name)		// delete a job with all of its results
     }
 
 ### Options
@@ -74,7 +82,7 @@ is the same as the API name. The first, mandatory parameter is the URL to be
 analyzed, the second, optional parameter contains the fields to be returned.
 Functions return an object hierarchy or _false_ if an error occurs.
 
-### Example: Call the Analyze API
+### Example 1: Call the Analyze API
 
 Code:
 
@@ -95,7 +103,7 @@ Returns:
       ["url"]=>             string(28) "http://diffbot.com/products/"
     }
 
-### Example: Call the Article API
+### Example 2: Call the Article API
 
 Code:
 
@@ -128,8 +136,65 @@ Returns:
 
 For choosing $Fields, see the official api documentation:
 
+* http://diffbot.com/products/automatic/classifier/
 * http://diffbot.com/products/automatic/article/
 * http://diffbot.com/products/automatic/frontpage/
 * http://diffbot.com/products/automatic/product/
 * http://diffbot.com/products/automatic/image/
+
+### Example 3: Submit and control a crawl job
+
+Synopsys:
+
+	public object crawlbot_start(string $name, mixed $seeds, mixed $apiQuery=false [, array $Options ] )
+
+The parameters are:
+
+* **name** - The name of your crawl job.
+* **seeds** - The URL(s) to crawl. Pass one URL as a string, more URLs as an array.
+* **apiQuery** - If you set this parameter to _false_ or just ignore it, your crawl will run in automatic mode.
+ Here you can define what Diffbot API should the crawlbot use. It is an associated array where array keys are:
+	* _api_ : one of Diffbot API name, e.g. "article"
+	* _fields_ (optional) : array of field names to processed, e.g. array("meta","image")
+* **Options** - An associated array for optional crawl arguments and/or refining your crawl. 
+ See [crawl documentation](http://diffbot.com/dev/docs/crawl/) for details.
+
+#### Start a job in automatic mode, crawl up to five pages:
+
+```php
+require_once 'diffbot.class.php';
+$d = new diffbot("DEVELOPER_TOKEN");
+$ret = $d->crawlbot_start("testJob","http://diffbot.com/", false, array("maxToProcess"=>5) );
+print_r($ret->response);
+```
+
+Returns:
+
+	Successfully added urls for spidering.
+
+#### Start a job using _product_ api with fields _querystring_ and _meta_ :
+
+```php
+require_once 'diffbot.class.php';
+$d = new diffbot("DEVELOPER_TOKEN");
+$ret = $d->crawlbot_start("testJob","http://diffbot.com/"
+  ,array(
+    "api"=>"product",
+    "fields"=>array("querystring","meta")
+  )
+  ,array("maxToProcess"=>5));
+print_r($ret->response);
+```
+
+#### To pause a running crawl job:
+
+```php
+require_once 'diffbot.class.php';
+$d = new diffbot("DEVELOPER_TOKEN");
+$ret = $d->crawlbot_pause("testJob");
+```
+
+Returns:
+
+	Successfully deleted job.
 

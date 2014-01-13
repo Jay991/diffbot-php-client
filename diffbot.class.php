@@ -69,6 +69,13 @@ class diffbot {
       $poll_uri.=sprintf("&%s=%s", urlencode($key), urlencode($value));
     }
     
+    $this->log_msg("calling $api for $url");
+    
+    return @$this->diffbot_call($poll_uri);
+  }
+  
+  /* handle the response of the final HTTP API call */
+  private function diffbot_call($poll_uri){
     $this->dotrace("request: $poll_uri");
     
     /* we use HTTP GET, so to minimize dependencies, file_get_contents is enouguh */
@@ -77,8 +84,6 @@ class diffbot {
     $this->dotrace("response body: $content");
     if(!$content)return $this->log_error("cannot read Diffbot api URL");
     if(!$ob=json_decode($content))$this->log_error("response is not a JSON object");
-    
-    $this->log_msg("calling $api for $url");
     
     return $ob;
   }
@@ -94,29 +99,75 @@ class diffbot {
   */
   
   public function analyze($url, $fields=array()){
-    return $this->api_call("analyze", $url, $fields);
+    return @$this->api_call(__FUNCTION__, $url, $fields);
   }
   
   public function article($url, $fields=array()){
-    return $this->api_call("article", $url, $fields);
+    return @$this->api_call(__FUNCTION__, $url, $fields);
   }
   
   public function frontpage($url, $fields=array() ){
-    return $this->api_call("frontpage", $url, $fields, array("format"=>"json") );	/* forcing JSON format as the default is XML */
+    return @$this->api_call(__FUNCTION__, $url, $fields, array("format"=>"json") );	/* forcing JSON format as the default is XML */
   }
   
   public function product($url, $fields=array()){
-    return $this->api_call("product", $url, $fields);
+    return @$this->api_call(__FUNCTION__, $url, $fields);
   }
   
   public function image($url, $fields=array()){
-    return $this->api_call("image", $url, $fields);
+    return @$this->api_call(__FUNCTION__, $url, $fields);
   }
   
-/*
-  public function classifier($url, $fields=array()){
-    return $this->api_call("classifier", $url, $fields);
+  /* submit a crawl job */
+  public function crawlbot_start($name,$seeds,$apiQuery=false,$options=array() ){
+    $ME = __FUNCTION__;
+    
+    if(!$name)return log_error("$ME: no name given");
+    if(!$seeds)return log_error("$ME: no seed URL  given");
+    if(is_array($seeds))$seeds=implode(" ",$seeds);
+    
+    if(!$apiQuery){	// crawling in auto mode
+      $apiUrl = sprintf($this->diffbot_base, $this->version, "analyze")."mode=auto";
+    }else{
+      if(!$api=$apiQuery['api'])return log_error("no apiQuery api given");
+      $apiUrl = sprintf($this->diffbot_base, $this->version, $api);
+      if(is_array($apiQuery['fields']))$apiUrl.=implode(",",$apiQuery['fields']);
+    }
+    
+    $poll_uri = sprintf($this->diffbot_base, $this->version, "crawl")
+      ."token={$this->token}&name={$name}&seeds={$seeds}"
+      ."&apiUrl=".urlencode($apiUrl)
+      ;
+    if(is_array($options)&& count($options))
+      foreach($options as $key=>$val)
+        $poll_uri.="&$key=".urlencode($val);
+    
+    $this->log_msg("submit crawl job '$name'");
+    
+    return @$this->diffbot_call($poll_uri);
   }
-*/
+  
+  /* common function to handle pause, continue, restart and delete commands */
+  private function crawlbot_control($name,$control){
+    $poll_uri = sprintf($this->diffbot_base, $this->version, "crawl")
+      ."token={$this->token}&name={$name}&{$control}";
+    return @$this->diffbot_call($poll_uri);
+  }
+  
+  public function crawlbot_pause($name){
+    return @$this->crawlbot_control($name,"pause=1");
+  }
+  
+  public function crawlbot_continue($name){
+    return @$this->crawlbot_control($name,"pause=0");
+  }
+  
+  public function crawlbot_restart($name){
+    return @$this->crawlbot_control($name,"restart=1");
+  }
+  
+  public function crawlbot_delete($name){
+    return @$this->crawlbot_control($name,"delete=1");
+  }
   
 }
