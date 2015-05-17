@@ -1,3 +1,5 @@
+*__Note__: This library is now deprecated and outdated. For the version 3 API client, and for a more robust architecture, please see [this one](https://github.com/Swader/diffbot-php-client) instead (currently in beta). As soon as the new library is out of beta, it will fully replace this one.*
+
 # PHP client for the Diffbot API
 
 The Diffbot PHP interface is a class, named *diffbot*. You can create one or
